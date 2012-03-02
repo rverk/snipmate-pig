@@ -1,0 +1,183 @@
+#TODO: Check for unneeded whitespace on optionals, check ord
+
+snippet regloc
+	`system('find . -maxdepth 2 -name "*.jar" -type f -printf "REGISTER %f\n\r"')`
+
+snippet reglib
+	`system('find . -maxdepth 2 -name "*.jar" -type f -printf "REGISTER %f\n\r"')`
+	
+
+# Commonly used setters
+snippet set
+	set debug
+	set job.name '${1:`Filename()`}';
+	set job.priority '${1:normal}';
+	set default_parallel ${1:1};
+
+
+#TODO: Slimmer register mogelijk? Register alle .jars in cwd
+snippet reg
+	REGISTER ${1};
+
+snippet defc define command
+	DEFINE ${1:alias} ${2:cmd};
+
+snippet defs define streaming ship
+	DEFINE ${1:alias} SHIP('${2:filepat}');
+
+snippet defsc define streaming ship cache
+	DEFINE ${1:alias} SHIP('${2:filepat}') CACHE('${3:file#file}');
+
+snippet defsstd define streaming using stdin, stdout
+	DEFINE ${1:alias} SHIP('${2:filepat}')${3: INPUT(stdin USING PigStreaming(',')) OUTPUT(stdout USING PigStreaming(','))};
+
+snippet deff define function
+
+
+
+snippet regavro
+	REGISTER avro-1.4.0.jar
+	REGISTER json-simple-1.1.jar
+	REGISTER piggybank.jar
+	REGISTER jackson-core-asl-1.5.5.jar
+	REGISTER jackson-mapper-asl-1.5.5.jar
+
+# Functions
+
+# LOAD
+snippet l load
+	LOAD '${1:loc}';
+
+snippet la load as
+	LOAD '${1:loc}' AS (${2:id:type});
+
+snippet lup load using PigStorage alt delim
+	LOAD '${1:loc}' USING PigStorage('${2:\0001}')${3: AS ()};
+
+snippet lut load using TextLoader
+	LOAD '${1:loc}' USING TextLoader()${3: AS ()};
+
+snippet lua load using AvroStorage
+	LOAD '${1:loc}' USING org.apache.pig.impl.io.avro.AvroStorage()${3: AS ()};
+
+
+# STORE
+snippet s store into
+	STORE ${1:A} INTO '${2:loc}';
+
+# default is PigStorage('\t'), this is for changing delim
+snippet sup store into using pigstorage
+	STORE ${1:A} INTO '${2:loc}' USING PigStorage('${3:\0001}');
+
+snippet sub store into using BinStorage
+	STORE ${1:A} INTO '${2:loc}' USING BinStorage();
+
+snippet supd store into using PigDump
+	STORE ${1:A} INTO '${2:loc}' USING PigDump();
+
+snippet sua store into using AvroStorage
+	STORE ${1:A} INTO '${2:loc}' USING org.apache.pig.impl.io.avro.AvroStorage('${3:schema}');
+
+
+
+
+
+# FOREACH
+snippet for
+	FOREACH ${1:A} GENERATE ${2:expr} ${3:AS };
+
+snippet for
+	FOREACH ${1:A} GENERATE FLATTEN(${2:group})${3:B};
+
+# (CO)GROUP
+snippet gr normal group by
+	GROUP ${1:A} BY ${2:expr}${3: PARALLEL };
+
+snippet gr group all
+	GROUP ${1:A} ALL${2: PARALLEL };
+
+snippet cgr
+	COGROUP ${1:A} BY ${2:A}${3: PARALLEL ;
+
+
+
+snippet fil
+	FILTER ${1:A} BY ${2:expr};
+
+snippet lim
+	LIMIT ${1:A} ${2:n}${3: PARALLEL };
+
+snippet ord
+	ORDER ${1:A} BY ${2:col}${3: DESC|ASC}${4: PARALLEL };
+
+snippet str
+	STREAM ${1:A} THROUGH ${2:'cmd|def'}${3:' AS (id:type)'};
+
+snippet cr
+	CROSS ${1:A}, ${2:B}${3: PARALLEL };
+
+snippet dst
+	DISTINCT ${1:A}${2: PARALLEL };
+
+# JOINS
+snippet ji normal inner join
+	JOIN ${1:A} BY ${2:col}, ${3:B} BY ${4:$2} ${5:PARALLEL };
+
+snippet ji replicated inner join
+	JOIN ${1:A} BY ${2:col}, ${3:B} BY ${4:$2} USING 'replicated' ${5:PARALLEL };
+
+snippet ji skewed inner join
+	JOIN ${1:A} BY ${2:col}, ${3:B} BY ${4:$2} USING 'skewed' ${5:PARALLEL };
+
+snippet ji merge inner join
+	JOIN ${1:A} BY ${2:col}, ${3:B} BY ${4:$2} USING 'merge' ${5:PARALLEL };
+
+snippet jo normal outer join
+	JOIN ${1:A} BY ${2:col} ${3:LEFT|RIGHT|FULL} ${4:OUTER}, ${5:B} BY ${6:$2} ${7:PARALLEL };
+
+snippet jo replicated outer join
+	JOIN ${1:A} BY ${2:col} ${3:LEFT|RIGHT|FULL} ${4:OUTER}, ${5:B} BY ${6:$2} USING 'replicated' ${7:PARALLEL };
+
+snippet jo skewed outer join
+	JOIN ${1:A} BY ${2:col} ${3:LEFT|RIGHT|FULL} ${4:OUTER}, ${5:B} BY ${6:$2} USING 'skewed' ${7:PARALLEL };
+
+snippet un
+	UNION ${1:A}, ${2:B};
+
+
+
+
+
+# Others
+snippet exp
+	EXPLAIN ${1:A};
+
+snippet ds
+	DESCRIBE ${1:A};
+
+snippet ill
+	ILLUSTRATE ${1:A};
+
+snippet smp
+	SAMPLE ${1:A} ${2:0.01};
+
+snippet spl
+	SPLIT ${1:A} INTO ${2:X} IF ${3:expr}, ${4:Y} IF ${5:expr};	
+
+snippet du
+	DUMP ${1:A};
+
+snippet docs
+	'''
+	File: ${1:`Filename('$1.py', 'foo.py')`}
+	Author: ${2:`g:snips_author`}
+	Description: ${3}
+	'''
+
+# Types
+snippet ca
+	chararray
+
+snippet ba
+	bytearray
+
