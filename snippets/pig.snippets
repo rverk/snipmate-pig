@@ -1,48 +1,46 @@
-#TODO: Check for unneeded whitespace on optionals, check ord
+snippet docs
+	-- File: ${1:`Filename('$1.pig', 'foo.pig')`}
+	-- ${2:`g:snips_author`}, `strftime('%Y-%m-%d')`
+	-- Description: ${3}
 
-snippet regloc
-	`system('find . -maxdepth 2 -name "*.jar" -type f -printf "REGISTER %f\n\r"')`
+snippet setg set generics
+	set debug '${1:off}'
+	set job.name '${2:`Filename()`}'
+	set job.priority '${3:normal}'
 
-snippet reglib
-	`system('find . -maxdepth 2 -name "*.jar" -type f -printf "REGISTER %f\n\r"')`
-	
+snippet setsc set snappy compression
+	-- job output compression
+	set mapred.output compress true
+	set mapred.output.compression.codec org.apache.hadoop.io.compress.SnappyCodec
+	--intermediate map output compression
+	set mapred.compress.map.output
+	set mapred.map.output.compression.codec org.apache.hadoop.io.compress.SnappyCodec
+	-- intermediate tmpfile compression
+	set pig.tmpfilecompression true
+	set pig.tmpfilecompression.codec org.apache.hadoop.io.compress.SnappyCodec 
 
-# Commonly used setters
-snippet set
-	set debug
-	set job.name '${1:`Filename()`}';
-	set job.priority '${1:normal}';
-	set default_parallel ${1:1};
-
-
-#TODO: Slimmer register mogelijk? Register alle .jars in cwd
+# REG and DEF
 snippet reg
 	REGISTER ${1};
 
-snippet defc define command
-	DEFINE ${1:alias} ${2:cmd};
+snippet dc define command
+	DEFINE ${1:alias} '${2:cmd}';
 
-snippet defs define streaming ship
+snippet ds define ship
 	DEFINE ${1:alias} SHIP('${2:filepat}');
 
-snippet defsc define streaming ship cache
+snippet dsc define ship cache
 	DEFINE ${1:alias} SHIP('${2:filepat}') CACHE('${3:file#file}');
 
-snippet defsstd define streaming using stdin, stdout
-	DEFINE ${1:alias} SHIP('${2:filepat}')${3: INPUT(stdin USING PigStreaming(',')) OUTPUT(stdout USING PigStreaming(','))};
+snippet dss define stream ship using stdin, stdout
+	DEFINE ${1:alias} SHIP('${2:filepat}') INPUT(stdin USING PigStreaming('${3:,}')) OUTPUT(stdout USING PigStreaming('${4:$3}'));
 
-snippet deff define function
+# 'Smart' REG
+snippet regloc register all jar files in ./
+	`system('find . -maxdepth 2 -name "*.jar" -type f -printf "REGISTER %f\n\r"')`
 
-
-
-snippet regavro
-	REGISTER avro-1.4.0.jar
-	REGISTER json-simple-1.1.jar
-	REGISTER piggybank.jar
-	REGISTER jackson-core-asl-1.5.5.jar
-	REGISTER jackson-mapper-asl-1.5.5.jar
-
-# Functions
+snippet reglib register all jar files 
+	`system('find /usr/lib/pig -name "*.jar" -type f -printf "REGISTER %p\n\r"')`
 
 # LOAD
 snippet l load
@@ -52,72 +50,58 @@ snippet la load as
 	LOAD '${1:loc}' AS (${2:id:type});
 
 snippet lup load using PigStorage alt delim
-	LOAD '${1:loc}' USING PigStorage('${2:\0001}')${3: AS ()};
+	LOAD '${1:loc}' USING PigStorage('${2:\0001}') ${3:AS ()};
 
 snippet lut load using TextLoader
-	LOAD '${1:loc}' USING TextLoader()${3: AS ()};
+	LOAD '${1:loc}' USING TextLoader() ${2:AS ()};
 
 snippet lua load using AvroStorage
-	LOAD '${1:loc}' USING org.apache.pig.impl.io.avro.AvroStorage()${3: AS ()};
+	LOAD '${1:loc}' USING org.apache.pig.impl.io.avro.AvroStorage() ${2:AS ()};
 
+snippet luh load using HBaseStorage
+	LOAD 'hbase://${1:table}' USING org.apache.pig.backend.jhadoop.hbase.HBaseStorage('${2:colLst,optStr}');
 
 # STORE
 snippet s store into
 	STORE ${1:A} INTO '${2:loc}';
 
-# default is PigStorage('\t'), this is for changing delim
-snippet sup store into using pigstorage
+snippet sup store using pigstorage alt delim
 	STORE ${1:A} INTO '${2:loc}' USING PigStorage('${3:\0001}');
 
-snippet sub store into using BinStorage
+snippet sub store using BinStorage
 	STORE ${1:A} INTO '${2:loc}' USING BinStorage();
 
-snippet supd store into using PigDump
+snippet supd storeo using PigDump
 	STORE ${1:A} INTO '${2:loc}' USING PigDump();
 
-snippet sua store into using AvroStorage
-	STORE ${1:A} INTO '${2:loc}' USING org.apache.pig.impl.io.avro.AvroStorage('${3:schema}');
+snippet sua store using AvroStorage
+	STORE ${1:A} INTO '${2:loc}' USING org.apache.pig.impl.io.avro.AvroStorage(${3:'schema'});
 
+snippet sue store ElasticSearchStorage
+	STORE ${1:A} INTO 'es://${2:index/obj/}' USING com.infochimpselasticsearch.pig.ElasticSearchStorage();
 
+snippet sur store ReditStorer
+	STORE ${1:A} INTO 'dummy' USING com.hackdiary.pig.RedisStorer('${2:kv|set|hash}', '${3:localhost}');
 
-
+snippet suh store HbaseStorage
+	STORE ${1:A} INTO 'hbase://${2:table}' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('${3:cf:col cf:col}');
 
 # FOREACH
-snippet for
+snippet feg foreach generate
 	FOREACH ${1:A} GENERATE ${2:expr} ${3:AS };
 
-snippet for
-	FOREACH ${1:A} GENERATE FLATTEN(${2:group})${3:B};
+snippet fegf foreach generate flatten
+	FOREACH ${1:A} GENERATE FLATTEN(${2:group})${3:,B};
 
 # (CO)GROUP
-snippet gr normal group by
+snippet gb group by
 	GROUP ${1:A} BY ${2:expr}${3: PARALLEL };
 
-snippet gr group all
+snippet ga group all
 	GROUP ${1:A} ALL${2: PARALLEL };
 
-snippet cgr
-	COGROUP ${1:A} BY ${2:A}${3: PARALLEL ;
-
-
-
-snippet fil
-	FILTER ${1:A} BY ${2:expr};
-
-snippet lim
-	LIMIT ${1:A} ${2:n}${3: PARALLEL };
-
-snippet ord
-	ORDER ${1:A} BY ${2:col}${3: DESC|ASC}${4: PARALLEL };
-
-snippet str
-	STREAM ${1:A} THROUGH ${2:'cmd|def'}${3:' AS (id:type)'};
-
-snippet cr
-	CROSS ${1:A}, ${2:B}${3: PARALLEL };
-
-snippet dst
-	DISTINCT ${1:A}${2: PARALLEL };
+snippet cg
+	COGROUP ${1:A} BY ${2:A}${3: PARALLEL };
 
 # JOINS
 snippet ji normal inner join
@@ -141,18 +125,32 @@ snippet jo replicated outer join
 snippet jo skewed outer join
 	JOIN ${1:A} BY ${2:col} ${3:LEFT|RIGHT|FULL} ${4:OUTER}, ${5:B} BY ${6:$2} USING 'skewed' ${7:PARALLEL };
 
-snippet un
+snippet un 
 	UNION ${1:A}, ${2:B};
 
+# OTHERS
+snippet fil 
+	FILTER ${1:A} BY ${2:expr};
 
+snippet lim
+	LIMIT ${1:A} ${2:n}${3: PARALLEL };
 
+snippet ord
+	ORDER ${1:A} BY ${2:col} ${3:DESC|ASC}${4: PARALLEL };
 
+snippet str
+	STREAM ${1:A} THROUGH '${2:cmd|def}'${3: AS (id:type)};
 
-# Others
+snippet cr
+	CROSS ${1:A}, ${2:B}${3: PARALLEL };
+
+snippet dst
+	DISTINCT ${1:A}${2: PARALLEL };
+
 snippet exp
 	EXPLAIN ${1:A};
 
-snippet ds
+snippet des
 	DESCRIBE ${1:A};
 
 snippet ill
@@ -167,17 +165,9 @@ snippet spl
 snippet du
 	DUMP ${1:A};
 
-snippet docs
-	'''
-	File: ${1:`Filename('$1.py', 'foo.py')`}
-	Author: ${2:`g:snips_author`}
-	Description: ${3}
-	'''
-
 # Types
 snippet ca
 	chararray
 
 snippet ba
 	bytearray
-
