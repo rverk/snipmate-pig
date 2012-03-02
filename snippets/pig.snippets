@@ -10,10 +10,10 @@ snippet setg set generics
 
 snippet setsc set snappy compression
 	-- job output compression
-	set mapred.output compress true
+	set mapred.output.compress true
 	set mapred.output.compression.codec org.apache.hadoop.io.compress.SnappyCodec
 	--intermediate map output compression
-	set mapred.compress.map.output
+	set mapred.compress.map.output true
 	set mapred.map.output.compression.codec org.apache.hadoop.io.compress.SnappyCodec
 	-- intermediate tmpfile compression
 	set pig.tmpfilecompression true
