@@ -37,10 +37,10 @@ snippet dss define stream ship using stdin, stdout
 
 # 'Smart' REG
 snippet regloc register all jar files in ./
-	`system('find . -maxdepth 2 -name "*.jar" -type f -printf "REGISTER %f\n\r"')`
+	`system('find . -maxdepth 2 -name "*.jar" -type f -printf "REGISTER %f\n"')`
 
 snippet reglib register all jar files 
-	`system('find /usr/lib/pig -name "*.jar" -type f -printf "REGISTER %p\n\r"')`
+	`system('find /usr/lib/pig -name "*.jar" -type f -printf "REGISTER %p\n"')`
 
 # LOAD
 snippet l load
@@ -165,7 +165,7 @@ snippet spl
 snippet du
 	DUMP ${1:A};
 
-# Types
+# TYPES
 snippet ca
 	chararray
 
