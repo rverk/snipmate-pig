@@ -59,7 +59,7 @@ snippet lua load using AvroStorage
 	LOAD '${1:loc}' USING org.apache.pig.impl.io.avro.AvroStorage() ${2:AS ()};
 
 snippet luh load using HBaseStorage
-	LOAD 'hbase://${1:table}' USING org.apache.pig.backend.jhadoop.hbase.HBaseStorage('${2:colLst,optStr}');
+	LOAD 'hbase://${1:table}' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('${2:colLst,optStr}');
 
 # STORE
 snippet s store into
